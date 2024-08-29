@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ambato Snake</title>
+    <link rel="stylesheet" href="file/page.css">
+</head>
+<body>
+    <audio id="backgroundAudio" loop>
+        <source src="music1.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+      </audio>
+            
+    <div>
+        <video id="video-background" autoplay loop muted>
+            <source src="musics/dreamy.mp4" type="video/mp4">
+            <!-- Add more <source> elements for other video formats if needed -->
+            Your browser does not support the video tag.
+        </video>
+    </div>
+    <div class="container">
+        <img src="file/omaygot.png" alt="Snake Game Image" style="width: 41%; margin-right: -3px; margin-top: 80px;">
+            <div >
+            <img class="corntwo"src="file/corn1.png" alt="Snake Game Image">
+            <img class="cornone"src="file/corn1.png" alt="Snake Game Image">
+            </div>
+                <div class="container2">
+                <h1 class="one">AMBATO</h1><h1 class="two">SNAKE</h1>
+                </div>
+                <audio id="myAudio" autoplay loop src="music1.mp3"></audio>
+<!-- Change "your-audio-file.mp3" to the path of your audio file -->
+    <button id="playButton">▶️ Play Music</button>
+                <button class="start-button" onclick="startGame()">Play</button>
+            </div>
+            
+
+    <script>
+        function startGame() {
+        window.location.href = "adel.html"; 
+        }
+        var video=document.getElementById("myVideo")
+        window.onload = function() {
+        const video = document.getElementById('video-background');
+        }
+        var audio = document.getElementById("myAudio");
+  var playButton = document.getElementById("playButton");
+  var isPlaying = false;
+
+  playButton.addEventListener("click", function() {
+    if (!isPlaying) {
+      audio.play();
+      isPlaying = true;
+      playButton.textContent = "⏸️ Pause Music";
+    } else {
+      audio.pause();
+      isPlaying = false;
+      playButton.textContent = "▶️ Play Music";
+    }
+  });
+
+        </script>
+</body>
+</html>
