@@ -1,0 +1,30 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #1B1734;
+  }
+  
+  #game-container {
+    position: relative;
+  }
+  
+  #gameCanvas {
+    border: 10px solid #5C038C;
+  }
+
+  #score {
+    color: white; 
+    position: absolute;
+    margin-top: -609px;
+    margin-left: 20px;
+  }
+  
+  .pause {
+    margin-left: -35px;
+    margin-bottom: 587px;
+    width: 18px;
+}
+  

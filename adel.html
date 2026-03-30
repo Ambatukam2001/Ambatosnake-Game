@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ambato Game | Live</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="file/style.css">
+    <style>
+        :root {
+            --primary: #5C038C;
+            --accent: #00ff0d;
+            --bg: #1B1734;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--bg);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+            background: linear-gradient(135deg, #1B1734 0%, #30034a 100%);
+        }
+
+        #game-container {
+            position: relative;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.7);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        canvas {
+            background: #0d0b1a;
+            border-radius: 8px;
+            display: block;
+            image-rendering: crisp-edges;
+            border: 4px solid var(--primary);
+        }
+
+        .hud {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 20px;
+            padding: 0 10px;
+        }
+
+        #score-board {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: white;
+            display: flex;
+            gap: 15px;
+            align-items: baseline;
+        }
+
+        #score-board span {
+            color: var(--accent);
+            text-shadow: 0 0 15px var(--accent);
+            min-width: 60px;
+        }
+        
+        .label {
+            font-size: 1rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 2px;
+            opacity: 0.8;
+        }
+
+        .controls-hint {
+            position: fixed;
+            bottom: 30px;
+            display: flex;
+            gap: 20px;
+            opacity: 0.6;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+        }
+
+        .indicator {
+            padding: 5px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+        }
+
+        #pause-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            border-radius: 12px;
+            z-index: 100;
+        }
+
+        #pause-overlay.visible {
+            display: flex;
+        }
+
+        .pause-content h2 {
+            font-size: 3rem;
+            color: var(--accent);
+            text-shadow: 0 0 20px var(--accent);
+        }
+        .door {
+            position: fixed;
+            left: 0;
+            width: 100%;
+            height: 50.5%;
+            background: var(--bg);
+            z-index: 1000;
+            transition: transform 1s cubic-bezier(1, 0, 0, 1);
+            pointer-events: none;
+        }
+
+        .door-top {
+            top: 0;
+            border-bottom: 2px solid var(--primary);
+            transform: translateY(0);
+        }
+
+        .door-bottom {
+            bottom: 0;
+            border-top: 2px solid var(--primary);
+            transform: translateY(0);
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+            body { justify-content: space-evenly; padding: 10px 0; height: 100vh; }
+            #game-container { padding: 10px; width: 95%; max-width: 380px; background: none; box-shadow: none; border: none; }
+            canvas { width: 100% !important; max-height: 45vh; object-fit: contain; }
+            .hud { margin-bottom: 5px; }
+            #score-board { font-size: 1rem; }
+            .label { font-size: 0.5rem; }
+            .controls-hint { display: none; }
+            #mobile-controls { display: flex !important; margin-top: 10px; gap: 10px; }
+            .d-pad { gap: 10px; }
+            .ctrl-btn { width: 55px; height: 55px; font-size: 1.2rem; }
+            .m-pause-btn { padding: 8px 30px; font-size: 0.8rem; }
+        }
+
+        /* Mobile Controls UI */
+        #mobile-controls {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            margin-top: 20px;
+            padding-bottom: 30px;
+        }
+
+        .d-pad {
+            display: grid;
+            grid-template-areas: ". up ." "left down right";
+            gap: 10px;
+        }
+
+        .ctrl-btn {
+            width: 70px;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            color: white;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            touch-action: manipulation;
+        }
+
+        .ctrl-btn:active { background: var(--primary); transform: scale(0.9); }
+        .up { grid-area: up; } .left { grid-area: left; } .right { grid-area: right; } .down { grid-area: down; }
+        
+        button { touch-action: manipulation; }
+
+        .m-pause-btn {
+            padding: 12px 40px;
+            background: var(--primary);
+            border-radius: 50px;
+            color: white;
+            font-weight: 900;
+            border: none;
+            text-transform: uppercase;
+            box-shadow: 0 4px 15px rgba(92, 3, 140, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="door door-top" id="doorTop"></div>
+    <div class="door door-bottom" id="doorBottom"></div>
+    <audio id="gameMusic" autoplay loop src="music1.mp3"></audio>
+    <div id="game-container">
+        <div class="hud">
+            <div id="score-board"><span class="label">Score:</span> <span id="scoreValue">0</span></div>
+            <div id="score-board"><span class="label">Best:</span> <span id="highScore">0</span></div>
+        </div>
+        
+        <canvas id="gameCanvas" width="600" height="600"></canvas>
+        
+        <div id="pause-overlay">
+            <div class="pause-content" style="text-align: center;">
+                <h2>PAUSED</h2>
+                <button class="m-pause-btn" style="margin-top: 20px;" onclick="togglePause()">Resume</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- On-Screen Controls for Mobile -->
+    <div id="mobile-controls">
+        <div class="d-pad">
+            <button class="ctrl-btn up" onclick="handleMobileMove('up')">▲</button>
+            <button class="ctrl-btn left" onclick="handleMobileMove('left')">◀</button>
+            <button class="ctrl-btn right" onclick="handleMobileMove('right')">▶</button>
+            <button class="ctrl-btn down" onclick="handleMobileMove('down')">▼</button>
+        </div>
+        <button class="m-pause-btn" id="mobilePauseBtn" onclick="togglePause()">Pause Game</button>
+    </div>
+
+    <div class="controls-hint">
+        <div class="indicator">Arrows to Move</div>
+        <div class="indicator">SPACE to Pause</div>
+    </div>
+
+    <script>
+        const gameMusic = document.getElementById("gameMusic");
+        
+        function tryPlayMusic() {
+            if (gameMusic.paused) {
+                gameMusic.play().catch(() => {});
+            }
+        }
+
+        // Play on click or ANY keypress
+        window.addEventListener('mousedown', tryPlayMusic, { once: true });
+        window.addEventListener('keydown', tryPlayMusic, { once: true });
+        
+        // Try to play immediately (might be blocked, might work)
+        tryPlayMusic();
+        
+        // Open the doors
+        window.addEventListener('load', () => {
+            document.getElementById('doorTop').style.transform = 'translateY(-100%)';
+            document.getElementById('doorBottom').style.transform = 'translateY(100%)';
+        });
+    </script>
+    <script src="file/snake.js"></script>
+</body>
+</html>
