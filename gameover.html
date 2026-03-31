@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Over | Ambato Snake</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #5C038C;
+            --accent: #ff3333;
+            --bg: #1B1734;
+            --glass: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+            margin: 0; padding: 0;
+        }
+
+        body {
+            background: var(--bg);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+            background: radial-gradient(circle at center, #30034a 0%, #1B1734 100%);
+        }
+
+        #splashCanvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        /* Liquid Fill & Waves */
+        .liquid-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 0;
+            background: rgba(255, 255, 255, 0.4);
+            z-index: 2;
+            animation: rise 10s forwards cubic-bezier(0.1, 0, 0.2, 1);
+        }
+
+        .wave {
+            position: absolute;
+            top: -100px;
+            left: 0;
+            width: 200%;
+            height: 100px;
+            background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1600 200" xmlns="http://www.w3.org/2000/svg"><path d="M0 100C200 50 400 50 600 100C800 150 1000 150 1200 100C1400 50 1600 50 1600 100V200H0V100Z" fill="white" fill-opacity="0.9"/></svg>');
+            background-size: 800px 100px;
+            animation: wave 4s linear infinite;
+        }
+
+        .wave-2 {
+            top: -80px;
+            opacity: 0.6;
+            animation: wave 6s linear infinite reverse;
+        }
+
+        @keyframes rise {
+            0% { height: 0; }
+            100% { height: 100vh; }
+        }
+
+        @keyframes wave {
+            from { transform: translateX(0); }
+            to { transform: translateX(-800px); }
+        }
+
+        .game-over-container {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 50px;
+            text-align: center;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.8);
+            animation: zoomIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            z-index: 10;
+        }
+
+        @keyframes zoomIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .death-img {
+            width: 180px;
+            border: 8px solid var(--primary);
+            border-radius: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 0 30px var(--primary);
+        }
+
+        h1 {
+            font-size: 4rem;
+            font-weight: 900;
+            margin: 0;
+            line-height: 1;
+            text-transform: uppercase;
+        }
+
+        .game { color: #fff; }
+        .over { color: var(--accent); }
+
+        .score-row {
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .score-label {
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: 0.7;
+        }
+
+        .score-value {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #00ff0d;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 18px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-retry {
+            background: #00ff0d;
+            color: var(--bg);
+        }
+
+        .btn-retry:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,255,13,0.3);
+        }
+
+        .btn-menu {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-menu:hover {
+            transform: translateY(-5px);
+            filter: brightness(1.2);
+        }
+
+        .skull-decor {
+            position: absolute;
+            width: 40px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="liquid-container">
+        <div class="wave"></div>
+        <div class="wave wave-2"></div>
+    </div>
+    <canvas id="splashCanvas"></canvas>
+    <audio id="gameOverMusic" autoplay src="musics/ambatukam.mp4"></audio>
+    <div class="game-over-container">
+        <img src="file/cry.jpg" class="death-img" alt="Death UI">
+        
+        <h1><span class="game">GAME</span> <span class="over">OVER</span></h1>
+        
+        <div class="score-row">
+            <div>
+                <div class="score-label">Final Score</div>
+                <div id="finalScore" class="score-value">0</div>
+            </div>
+            <div style="text-align: right;">
+                <div class="score-label">Best</div>
+                <div id="bestScore" style="font-size: 1.5rem; font-weight: 700; color: #fff;">0</div>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn btn-retry" onclick="restart()">RETRY</button>
+            <button class="btn btn-menu" onclick="mainMenu()">MENU</button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('finalScore').textContent = localStorage.getItem('last_score') || 0;
+        document.getElementById('bestScore').textContent = localStorage.getItem('ambato_highScore') || 0;
+
+        const gameOverMusic = document.getElementById('gameOverMusic');
+        
+        // Play automatically (might require first interaction on previous page, which we have)
+        window.addEventListener('load', () => {
+            gameOverMusic.play().catch(e => {
+                console.log("Audio play blocked, click anywhere to play");
+                window.addEventListener('click', () => gameOverMusic.play(), { once: true });
+            });
+        });
+
+        // Splashing White Liquid Animation
+        const canvas = document.getElementById('splashCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        class Particle {
+            constructor(x, y, vx, vy, size) {
+                this.x = x; this.y = y; this.vx = vx; this.vy = vy;
+                this.size = size; this.gravity = 0.2; this.life = 1;
+            }
+            update() {
+                this.x += this.vx; this.y += this.vy;
+                this.vy += this.gravity;
+                this.life -= 0.01;
+            }
+            draw() {
+                ctx.fillStyle = `rgba(255,255,255,${this.life})`;
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill();
+            }
+        }
+
+        let particles = [];
+        function createSplash() {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            for(let i=0; i<150; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 15 + 5;
+                particles.push(new Particle(
+                    centerX, centerY, 
+                    Math.cos(angle) * speed, 
+                    Math.sin(angle) * speed - 5,
+                    Math.random() * 10 + 2
+                ));
+            }
+        }
+
+        function animateSplash() {
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            particles.forEach((p, idx) => {
+                p.update(); p.draw();
+                if(p.life <= 0) particles.splice(idx, 1);
+            });
+            if(particles.length > 0) requestAnimationFrame(animateSplash);
+        }
+
+        setTimeout(() => {
+            createSplash();
+            animateSplash();
+        }, 100);
+
+        function restart() {
+            window.location.href = "adel.html";
+        }
+
+        function mainMenu() {
+            window.location.href = "index.html";
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ambato Snake | Premium Edition</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="file/page.css">
+    <style>
+        :root {
+            --primary: #5C038C;
+            --accent: #00ff0d;
+            --bg: #1B1734;
+            --glass: rgba(255, 255, 255, 0.1);
+        }
+        
+        * {
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        #video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+            filter: brightness(0.6) blur(2px);
+        }
+
+        .glass-container {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 40px;
+            text-align: center;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero-img {
+            width: 250px;
+            height: 250px;
+            object-fit: contain;
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
+            border-radius: 20px;
+            margin-bottom: 20px;
+        }
+
+        .title-group {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin: 0;
+            text-transform: uppercase;
+            font-weight: 900;
+            letter-spacing: -2px;
+        }
+
+        .title-one { color: white; }
+        .title-two { color: var(--accent); }
+
+        .door {
+            position: fixed;
+            left: 0;
+            width: 100%;
+            height: 50.5%;
+            background: var(--bg);
+            z-index: 1000;
+            transition: transform 1s cubic-bezier(1, 0, 0, 1);
+            pointer-events: none;
+        }
+
+        .door-top {
+            top: 0;
+            border-bottom: 2px solid var(--primary);
+            transform: translateY(-100%);
+        }
+
+        .door-bottom {
+            bottom: 0;
+            border-top: 2px solid var(--primary);
+            transform: translateY(100%);
+        }
+
+        /* Initial state is closed if we want it to open AT the start, but user said "when click play button" */
+        /* So we should have them overlay and THEN move out? No, he said "add animation that it will open" */
+        /* This implies they are closed and THEN they open to reveal the next page? Or the current page opens to reveal the game? */
+        /* Usually, you want the transition to be: Click button -> Overlay appears (closed) -> Transition to next page -> Overlay opens (reveals game). */
+        /* OR: Screen splits and moves away to reveal the game directly. */
+        
+        body.animating .door-left { transform: translateX(0); }
+        body.animating .door-right { transform: translateX(0); }
+        
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 18px 48px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            width: 100%;
+            max-width: 300px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-play {
+            background: var(--accent);
+            color: var(--bg);
+        }
+
+        .btn-play:hover {
+            transform: scale(1.05) rotate(-2deg);
+            box-shadow: 0 0 30px var(--accent);
+        }
+
+        .decor-img {
+            position: absolute;
+            width: 60px;
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        .corn-1 { top: -20px; left: -20px; transform: rotate(-15deg); }
+        .corn-2 { top: -20px; right: -20px; transform: rotate(15deg); }
+        @media (max-width: 600px) {
+            .glass-container { padding: 25px 20px; width: 95%; max-height: 95vh; overflow-y: auto; }
+            h1 { font-size: 1.8rem; margin: 0; }
+            .hero-img { width: 140px; height: 140px; margin-bottom: 10px; }
+            .btn { padding: 12px 20px; font-size: 0.9rem; }
+            .title-group { margin-bottom: 15px; }
+        }
+    </style>
+</head>
+<body>
+    <audio id="myAudio" autoplay loop src="music1.mp3"></audio>
+    
+    <video id="video-background" autoplay loop muted>
+        <source src="musics/dreamy.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+
+    <div class="door door-top" id="doorTop"></div>
+    <div class="door door-bottom" id="doorBottom"></div>
+
+    <div class="glass-container">
+        <div style="position: relative; display: inline-block;">
+            <img src="file/corn1.png" class="decor-img corn-1" alt="decor">
+            <img src="file/omaygot.png" class="hero-img" alt="Ambato Snake">
+            <img src="file/corn1.png" class="decor-img corn-2" alt="decor">
+        </div>
+
+        <div class="title-group">
+            <h1 class="title-one">AMBATO</h1>
+            <h1 class="title-two">SNAKE</h1>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn btn-play" onclick="startGame()">PLAY GAME</button>
+        </div>
+    </div>
+
+    <script>
+        function startGame() {
+            const top = document.getElementById('doorTop');
+            const bottom = document.getElementById('doorBottom');
+            
+            // Bring doors to center (Close them)
+            top.style.transform = 'translateY(0)';
+            bottom.style.transform = 'translateY(0)';
+            
+            setTimeout(() => {
+                window.location.href = "adel.html"; 
+            }, 1000); 
+        }
+
+        var audio = document.getElementById("myAudio");
+
+        // Global interaction listener to auto-play
+        window.addEventListener('click', function() {
+            if (audio.paused) {
+                audio.play().catch(e => console.log("Autoplay prevented:", e));
+            }
+        }, { once: true });
+    </script>
+</body>
+</html>
